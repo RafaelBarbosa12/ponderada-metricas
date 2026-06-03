@@ -1,0 +1,223 @@
+name: CI/CD Métricas
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      experiment_variation:
+        description: "Rótulo da variação do experimento"
+        required: true
+        default: "manual-dispatch"
+      parallel_jobs:
+        description: "Jobs lint e test em paralelo (true) ou sequencial (false)"
+        type: boolean
+        default: true
+      cache_enabled:
+        description: "Usar cache de dependências pip"
+        type: boolean
+        default: true
+      expand_tests:
+        description: "Executar suite expandida de testes"
+        type: boolean
+        default: false
+      run_slow_tests:
+        description: "Executar teste lento (~3s)"
+        type: boolean
+        default: false
+      intentional_fail:
+        description: "Ativar teste com falha intencional"
+        type: boolean
+        default: false
+
+env:
+  PYTHON_VERSION: "3.11"
+  EXPERIMENT_VARIATION: ${{ github.event.inputs.experiment_variation || 'push-default' }}
+  PARALLEL_JOBS: ${{ github.event.inputs.parallel_jobs != false && 'true' || 'false' }}
+  CACHE_ENABLED: ${{ github.event.inputs.cache_enabled != false && 'true' || 'false' }}
+  EXPAND_TESTS: ${{ github.event.inputs.expand_tests == true && '1' || '0' }}
+  RUN_SLOW_TESTS: ${{ github.event.inputs.run_slow_tests == true && '1' || '0' }}
+  INTENTIONAL_FAIL: ${{ github.event.inputs.intentional_fail == true && '1' || '0' }}
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache pip
+        if: env.CACHE_ENABLED == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ hashFiles('requirements-dev.txt') }}
+          restore-keys: |
+            pip-${{ runner.os }}-
+
+      - name: Instalar dependências
+        id: install
+        run: |
+          START=$(date +%s)
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+          END=$(date +%s)
+          echo "duration=$((END-START))" >> "$GITHUB_OUTPUT"
+
+      - name: Ruff (lint)
+        id: lint_step
+        run: |
+          START=$(date +%s)
+          ruff check src tests
+          END=$(date +%s)
+          echo "duration=$((END-START))" >> "$GITHUB_OUTPUT"
+
+      - name: Exportar timing lint
+        run: |
+          echo "JOB_LINT_INSTALL_SEC=${{ steps.install.outputs.duration }}" >> "$GITHUB_ENV"
+          echo "JOB_LINT_LINT_SEC=${{ steps.lint_step.outputs.duration }}" >> "$GITHUB_ENV"
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    needs: ${{ github.event.inputs.parallel_jobs == false && fromJSON('["lint"]') || fromJSON('[]') }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache pip
+        if: env.CACHE_ENABLED == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ hashFiles('requirements-dev.txt') }}
+          restore-keys: |
+            pip-${{ runner.os }}-
+
+      - name: Instalar dependências
+        id: install_test
+        run: |
+          START=$(date +%s)
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+          END=$(date +%s)
+          echo "duration=$((END-START))" >> "$GITHUB_OUTPUT"
+
+      - name: Executar testes
+        id: pytest
+        env:
+          EXPAND_TESTS: ${{ env.EXPAND_TESTS }}
+          RUN_SLOW_TESTS: ${{ env.RUN_SLOW_TESTS }}
+          INTENTIONAL_FAIL: ${{ env.INTENTIONAL_FAIL }}
+        run: |
+          START=$(date +%s)
+          mkdir -p reports
+          pytest --junitxml=reports/junit.xml --timeout=30 2>&1 | tee reports/pytest.log
+          EXIT=$?
+          END=$(date +%s)
+          echo "duration=$((END-START))" >> "$GITHUB_OUTPUT"
+          echo "exit_code=$EXIT" >> "$GITHUB_OUTPUT"
+          exit $EXIT
+        continue-on-error: ${{ env.INTENTIONAL_FAIL == '1' }}
+
+      - name: Upload relatório de testes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ github.run_id }}
+          path: |
+            reports/junit.xml
+            reports/pytest.log
+          retention-days: 30
+
+      - name: Exportar timing test
+        if: always()
+        run: |
+          echo "JOB_TEST_INSTALL_SEC=${{ steps.install_test.outputs.duration }}" >> "$GITHUB_ENV"
+          echo "JOB_TEST_PYTEST_SEC=${{ steps.pytest.outputs.duration }}" >> "$GITHUB_ENV"
+          echo "JOB_STATUS=${{ job.status }}" >> "$GITHUB_ENV"
+          echo "JOB_CONCLUSION=${{ job.status }}" >> "$GITHUB_ENV"
+
+  collect-metrics:
+    name: collect-metrics
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Baixar artefato de testes
+        uses: actions/download-artifact@v4
+        with:
+          pattern: test-results-*
+          merge-multiple: true
+          path: reports
+
+      - name: Mensagem e variação do experimento
+        run: |
+          MSG=$(git log -1 --pretty=%s)
+          echo "COMMIT_MESSAGE=$MSG" >> "$GITHUB_ENV"
+          if [[ "$MSG" == exp:* ]]; then
+            echo "EXPERIMENT_VARIATION=${MSG#exp:}" >> "$GITHUB_ENV"
+          elif [[ -n "${{ github.event.inputs.experiment_variation }}" ]]; then
+            echo "EXPERIMENT_VARIATION=${{ github.event.inputs.experiment_variation }}" >> "$GITHUB_ENV"
+          else
+            echo "EXPERIMENT_VARIATION=push-default" >> "$GITHUB_ENV"
+          fi
+
+      - name: Instalar dependências mínimas
+        run: pip install -r requirements-dev.txt -q
+
+      - name: Calcular duração do workflow (aprox.)
+        run: |
+          WF_START="${{ github.run_started_at }}"
+          echo "Workflow iniciado em: $WF_START"
+
+      - name: Gravar métricas locais
+        env:
+          JUNIT_PATH: reports/junit.xml
+          METRICS_DIR: artifacts/metrics
+          JOB_STATUS: ${{ needs.test.result }}
+          JOB_CONCLUSION: ${{ needs.test.result }}
+        run: python scripts/record_pipeline_metrics.py
+
+      - name: Anotar resultados dos jobs
+        env:
+          METRICS_DIR: artifacts/metrics
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          rid = int(os.environ["GITHUB_RUN_ID"])
+          p = Path("artifacts/metrics") / f"run_{rid}.json"
+          data = json.loads(p.read_text())
+          data["needs_test"] = "${{ needs.test.result }}"
+          data["needs_lint"] = "${{ needs.lint.result }}"
+          p.write_text(json.dumps(data, indent=2, ensure_ascii=False))
+          PY
+
+      - name: Upload métricas
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-metrics-${{ github.run_id }}
+          path: artifacts/metrics/
+          retention-days: 90
+
+      - name: Resumo no job
+        run: |
+          echo "## Métricas run ${{ github.run_id }}" >> "$GITHUB_STEP_SUMMARY"
+          cat "artifacts/metrics/run_${{ github.run_id }}.json" >> "$GITHUB_STEP_SUMMARY"

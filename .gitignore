@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+.env
+data/raw/
+*.egg-info/
+.DS_Store
+
+# Mantém exemplos versionados; dados coletados localmente ficam em data/
+!data/.gitkeep
+!data/metrics/.gitkeep

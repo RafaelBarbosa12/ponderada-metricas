@@ -1,0 +1,20 @@
+[project]
+name = "ponderada-hermano"
+version = "0.1.0"
+description = "Experimento CI/CD — métricas de pipeline"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-v --tb=short"
+markers = [
+    "slow: testes intencionalmente lentos para o experimento",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
