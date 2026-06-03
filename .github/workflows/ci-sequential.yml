@@ -2,6 +2,11 @@
 name: CI/CD Métricas (sequencial)
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - ".sequential-marker"
+      - "experiment-config.json"
   workflow_dispatch:
     inputs:
       experiment_variation:

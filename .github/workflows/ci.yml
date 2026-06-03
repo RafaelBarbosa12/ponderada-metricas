@@ -3,6 +3,8 @@ name: CI/CD Métricas
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - ".sequential-marker"
   workflow_dispatch:
     inputs:
       experiment_variation:
