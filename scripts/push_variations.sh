@@ -27,8 +27,9 @@ for entry in "${configs[@]}"; do
   "intentional_fail": $fail
 }
 EOF
-  git add experiment-config.json
-  git commit -m "exp:$label — variação do experimento CI/CD"
+  echo "$label $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> experiments/run-log.txt
+  git add experiment-config.json experiments/run-log.txt
+  git commit -m "exp:$label — variação do experimento CI/CD" --allow-empty
   git push origin main
   echo "Pushed $label"
   sleep 5
