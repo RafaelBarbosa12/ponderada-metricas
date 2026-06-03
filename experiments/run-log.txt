@@ -12,3 +12,4 @@
 10-sequencial-expandido
 11-sequencial-falha
 01-baseline-paralelo-cache 2026-06-03T14:20:42Z
+02-sem-cache 2026-06-03T14:20:48Z
