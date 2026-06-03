@@ -1,5 +1,5 @@
 {
-  "experiment_variation": "baseline-estavel",
+  "experiment_variation": "01-baseline-paralelo-cache",
   "parallel_jobs": true,
   "cache_enabled": true,
   "expand_tests": false,
