@@ -1,8 +1,8 @@
 {
-  "experiment_variation": "04-sequencial-sem-cache",
+  "experiment_variation": "10-sequencial-expandido",
   "parallel_jobs": false,
-  "cache_enabled": false,
-  "expand_tests": false,
+  "cache_enabled": true,
+  "expand_tests": true,
   "run_slow_tests": false,
   "intentional_fail": false
 }
