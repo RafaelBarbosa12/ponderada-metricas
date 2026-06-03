@@ -3,7 +3,7 @@
 # Requer: gh auth login
 set -euo pipefail
 
-REPO="${1:-RafaelBarbosa12/ponderada-hermano}"
+REPO="${1:-RafaelBarbosa12/ponderada-metricas}"
 
 dispatch() {
   local label="$1"

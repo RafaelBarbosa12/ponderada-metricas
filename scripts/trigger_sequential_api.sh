@@ -2,7 +2,7 @@
 # Dispara runs sequenciais via API (sem gh CLI)
 set -euo pipefail
 
-REPO="${1:-RafaelBarbosa12/ponderada-hermano}"
+REPO="${1:-RafaelBarbosa12/ponderada-metricas}"
 TOKEN="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
 API="https://api.github.com/repos/${REPO}/actions/workflows/ci-sequential.yml/dispatches"
 

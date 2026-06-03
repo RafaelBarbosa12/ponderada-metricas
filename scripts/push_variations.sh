@@ -9,6 +9,7 @@ configs=(
   '02-sem-cache|true|false|false|false|false'
   '05-testes-expandidos|true|true|true|false|false'
   '06-teste-lento|true|true|false|true|false'
+  '07-falha-intencional|true|true|false|false|true'
   '08-expandido-lento|true|true|true|true|false'
   '09-sem-cache-expandido|true|false|true|false|false'
   '12-baseline-repeticao|true|true|false|false|false'
@@ -35,6 +36,4 @@ EOF
 done
 
 echo ""
-echo "8 runs paralelas disparadas via push."
-echo "Para runs 03,04,10,11 (sequenciais), use workflow_dispatch em ci-sequential.yml"
-echo "ou instale gh e rode scripts/trigger_experiments.sh"
+echo "8 runs paralelas disparadas. Em seguida rode: ./scripts/push_sequential_variations.sh"

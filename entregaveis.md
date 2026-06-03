@@ -1,100 +1,73 @@
 # Entregáveis — Ponderada CI/CD (métricas de pipeline)
 
 **Aluno:** Rafael Barbosa  
-**Repositório de entrega:** https://github.com/RafaelBarbosa12/ponderada-metricas  
-
-*Uso de IA para ajudar na documentacao e organizacao de pastas e textos*
+**Repositório:** https://github.com/RafaelBarbosa12/ponderada-metricas  
+**Actions:** https://github.com/RafaelBarbosa12/ponderada-metricas/actions  
+**Data:** 03/06/2026  
 
 ---
 
-## 1. Links obrigatórios (copiar para o professor)
+## 1. Links para o professor
 
 | Item | Link |
 |------|------|
-| Repositório GitHub | https://github.com/RafaelBarbosa12/ponderada-metricas |
-| Workflow principal (YAML) | https://github.com/RafaelBarbosa12/ponderada-metricas/blob/main/.github/workflows/ci.yml |
+| Repositório | https://github.com/RafaelBarbosa12/ponderada-metricas |
+| Workflow paralelo (YAML) | https://github.com/RafaelBarbosa12/ponderada-metricas/blob/main/.github/workflows/ci.yml |
 | Workflow sequencial (YAML) | https://github.com/RafaelBarbosa12/ponderada-metricas/blob/main/.github/workflows/ci-sequential.yml |
-| GitHub Actions (execuções) | https://github.com/RafaelBarbosa12/ponderada-metricas/actions |
-| Script de coleta (Python) | https://github.com/RafaelBarbosa12/ponderada-metricas/blob/main/scripts/collect_metrics.py |
-| Script de gráficos | https://github.com/RafaelBarbosa12/ponderada-metricas/blob/main/scripts/generate_charts.py |
-| Base CSV | https://github.com/RafaelBarbosa12/ponderada-metricas/blob/main/data/metrics/metrics_latest.csv |
-| Base JSON | https://github.com/RafaelBarbosa12/ponderada-metricas/blob/main/data/metrics/metrics_latest.json |
+| Script coleta (API) | https://github.com/RafaelBarbosa12/ponderada-metricas/blob/main/scripts/collect_metrics.py |
+| Script gráficos | https://github.com/RafaelBarbosa12/ponderada-metricas/blob/main/scripts/generate_charts.py |
+| CSV métricas | https://github.com/RafaelBarbosa12/ponderada-metricas/blob/main/data/metrics/metrics_latest.csv |
+| JSON métricas | https://github.com/RafaelBarbosa12/ponderada-metricas/blob/main/data/metrics/metrics_latest.json |
 | Relatório técnico | https://github.com/RafaelBarbosa12/ponderada-metricas/blob/main/docs/RELATORIO.md |
-| Este índice de entrega | https://github.com/RafaelBarbosa12/ponderada-metricas/blob/main/entregaveis.md |
+| Este arquivo | https://github.com/RafaelBarbosa12/ponderada-metricas/blob/main/entregaveis.md |
 
 ---
 
-## 2. Run de referência no repositório atual (`ponderada-metricas`)
+## 2. Experimento: 12 variações + 20 execuções reais
 
-Primeira execução bem-sucedida após migração do código corrigido.
+Todas as runs abaixo são do repositório **ponderada-metricas** (coletadas via `collect_metrics.py` em 03/06/2026).
 
-| Campo | Valor |
-|-------|--------|
-| **run_id** | `26889954640` |
-| **run_number** | `1` |
-| **URL** | https://github.com/RafaelBarbosa12/ponderada-metricas/actions/runs/26889954640 |
-| **workflow** | CI/CD Métricas |
-| **conclusion** | `success` |
-| **commit_sha** | `e8b43b9540267f868461c19987f93ecf46fa307d` |
-| **commit_message** | docs: entrega final da ponderada — métricas, gráficos e relatório |
-| **experiment_variation** | `push-default` |
-| **parallel_jobs** | `true` |
-| **cache_enabled** | `true` |
-| **test_count** | `13` |
-| **test_failures** | `0` |
-| **test_skipped** | `7` |
-| **test_time_avg_sec** | `0.0001` |
+### Variações do experimento (commits `exp:`)
 
-### JSON gerado pelo job `collect-metrics` (run 26889954640)
+| # | Variação | Workflow | run_id (exemplo) | conclusion | duração (s) |
+|---|----------|----------|------------------|------------|-------------|
+| 01 | baseline-paralelo-cache | CI/CD Métricas | 26891004909 | success | 60 |
+| 02 | sem-cache | CI/CD Métricas | 26891009858 | success | 49 |
+| 03 | sequencial-cache | CI/CD Métricas (sequencial) | 26891075815 | success | 57 |
+| 04 | sequencial-sem-cache | CI/CD Métricas (sequencial) | 26891081213 | success | 55 |
+| 05 | testes-expandidos | CI/CD Métricas | 26891017931 | success | 59 |
+| 06 | teste-lento | CI/CD Métricas | 26891024956 | success | 54 |
+| 07 | falha-intencional | CI/CD Métricas | 26891029560 | success* | 54 |
+| 08 | expandido-lento | CI/CD Métricas | 26891036930 | success | 53 |
+| 09 | sem-cache-expandido | CI/CD Métricas | 26891043610 | success | 51 |
+| 10 | sequencial-expandido | CI/CD Métricas (sequencial) | 26891088531 | success | 56 |
+| 11 | sequencial-falha | CI/CD Métricas (sequencial) | 26891097104 | success* | 57 |
+| 12 | baseline-repeticao | CI/CD Métricas | 26891051184 | success | 66 |
 
-```json
-{
-  "run_id": 26889954640,
-  "run_number": 1,
-  "workflow": "CI/CD Métricas",
-  "repository": "RafaelBarbosa12/ponderada-metricas",
-  "commit_sha": "e8b43b9540267f868461c19987f93ecf46fa307d",
-  "commit_message": "docs: entrega final da ponderada — métricas, gráficos e relatório",
-  "ref": "refs/heads/main",
-  "actor": "RafaelBarbosa12",
-  "status": "success",
-  "conclusion": "success",
-  "timestamp": "2026-06-03T14:06:54.410242+00:00",
-  "experiment_variation": "push-default",
-  "parallel_jobs": true,
-  "cache_enabled": true,
-  "expand_tests": false,
-  "run_slow_tests": false,
-  "intentional_fail": false,
-  "test_count": 13,
-  "test_failures": 0,
-  "test_errors": 0,
-  "test_skipped": 7,
-  "test_time_avg_sec": 0.0001,
-  "needs_test": "success",
-  "needs_lint": "success"
-}
-```
+\* Workflow verde com `continue-on-error`; falha registrada no JUnit (`test_failures` no artefato).
+
+**Total coletado:** 20 workflow runs (12 variações + runs iniciais de setup/docs).
+
+### Links diretos (amostra)
+
+- https://github.com/RafaelBarbosa12/ponderada-metricas/actions/runs/26891004909 (01 baseline)
+- https://github.com/RafaelBarbosa12/ponderada-metricas/actions/runs/26891009858 (02 sem cache)
+- https://github.com/RafaelBarbosa12/ponderada-metricas/actions/runs/26891029560 (07 falha intencional)
+- https://github.com/RafaelBarbosa12/ponderada-metricas/actions/runs/26891075815 (03 sequencial)
+
+Lista completa: aba [Actions](https://github.com/RafaelBarbosa12/ponderada-metricas/actions).
 
 ---
 
-## 3. Arquivos no repositório (caminhos locais)
+## 3. Métricas mínimas (CSV)
 
-| Entregável | Caminho |
-|------------|---------|
-| Projeto + testes | `src/`, `tests/` |
-| Pipeline paralelo | `.github/workflows/ci.yml` |
-| Pipeline sequencial | `.github/workflows/ci-sequential.yml` |
-| Config de variações | `experiment-config.json` |
-| Métricas no pipeline | `scripts/record_pipeline_metrics.py` |
-| Coleta via API | `scripts/collect_metrics.py` |
-| Gráficos | `scripts/generate_charts.py` → `charts/*.png` |
-| Dados tabulares | `data/metrics/metrics_latest.csv`, `metrics_latest.json` |
-| Relatório completo | `docs/RELATORIO.md` |
-| Variações planejadas | `experiments/VARIATIONS.md` |
-| Como reproduzir | `README.md` |
+Arquivo: `data/metrics/metrics_latest.csv` — gerado por `scripts/collect_metrics.py` (API GitHub + artefatos).
 
-### Gráficos (4 obrigatórios)
+Colunas incluídas: `run_id`, `commit_sha`, `commit_message`, `status`, `conclusion`, `workflow_duration_sec`, `job_name`, `job_duration_sec`, `step_name`, `step_duration_sec`, `test_count`, `test_failures`, `test_time_avg_sec`, `timestamp`, `experiment_variation`, `parallel_jobs`, `cache_enabled`, etc.
+
+---
+
+## 4. Gráficos (4 obrigatórios)
 
 | # | Arquivo |
 |---|---------|
@@ -103,41 +76,24 @@ Primeira execução bem-sucedida após migração do código corrigido.
 | 3 | `charts/03_taxa_sucesso_falha.png` |
 | 4 | `charts/04_testes_vs_duracao.png` |
 
----
-
-## 4. O que o pipeline faz (checklist da atividade)
-
-- [x] Instalação de dependências (`pip install -r requirements-dev.txt`)
-- [x] Lint / análise estática (`ruff check`)
-- [x] Testes automatizados (`pytest` + JUnit XML)
-- [x] Artefato com resultados (`test-results-{run_id}`)
-- [x] Coleta de métricas no job `collect-metrics` + artefato `pipeline-metrics-{run_id}`
-- [x] Script Python próprio consultando API (`collect_metrics.py`)
-- [x] CSV/JSON estruturado
-- [x] Quatro gráficos
-- [x] Relatório técnico em Markdown
+Gerados por `scripts/generate_charts.py` a partir do CSV acima.
 
 ---
 
-## 5. Experimento com 12+ variações
+## 5. Pipeline (checklist)
 
-O planejamento das 12 variações está em `experiments/VARIATIONS.md`.
-
-**Histórico completo (22 runs, 12+ variações):** coletado no repositório anterior `ponderada-hermano` — dados em `data/metrics/metrics_latest.csv` e análise em `docs/RELATORIO.md`.
-
-**Repositório atual (`ponderada-metricas`):** código final + run **#1** (`26889954640`). Para repetir as 12 variações só neste repo:
-
-```bash
-./scripts/push_variations.sh RafaelBarbosa12/ponderada-metricas
-./scripts/push_sequential_variations.sh RafaelBarbosa12/ponderada-metricas
-export GITHUB_TOKEN=$(gh auth token)
-python scripts/collect_metrics.py --repo RafaelBarbosa12/ponderada-metricas --limit 30
-python scripts/generate_charts.py
-```
+- [x] Instalação de dependências
+- [x] Lint (`ruff`)
+- [x] Testes (`pytest` + JUnit)
+- [x] Artefatos (`test-results-*`, `pipeline-metrics-*`)
+- [x] Coleta de métricas no job `collect-metrics`
+- [x] Script Python na API
+- [x] 12+ execuções com variações
+- [x] Relatório com análise → `docs/RELATORIO.md`
 
 ---
 
-## 6. Como reproduzir (resumo)
+## 6. Como reproduzir
 
 ```bash
 git clone https://github.com/RafaelBarbosa12/ponderada-metricas.git
@@ -145,18 +101,22 @@ cd ponderada-metricas
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
 
-ruff check src tests
-pytest
+# Disparar 12 variações
+./scripts/push_variations.sh
+./scripts/push_sequential_variations.sh
 
+# Após as runs no GitHub
 export GITHUB_TOKEN=$(gh auth token)
-python scripts/collect_metrics.py --repo RafaelBarbosa12/ponderada-metricas
+python scripts/collect_metrics.py --repo RafaelBarbosa12/ponderada-metricas --limit 40
 python scripts/generate_charts.py
 ```
 
 ---
 
-## 7. Relatório
+## 7. Texto para envio
 
-Respostas detalhadas: **[docs/RELATORIO.md](docs/RELATORIO.md)**
-
----
+> Ponderada CI/CD — métricas de pipeline.  
+> Repo: https://github.com/RafaelBarbosa12/ponderada-metricas  
+> Entregáveis: https://github.com/RafaelBarbosa12/ponderada-metricas/blob/main/entregaveis.md  
+> Relatório: https://github.com/RafaelBarbosa12/ponderada-metricas/blob/main/docs/RELATORIO.md  
+> Actions: https://github.com/RafaelBarbosa12/ponderada-metricas/actions  

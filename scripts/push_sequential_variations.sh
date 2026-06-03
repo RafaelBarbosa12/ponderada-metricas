@@ -6,6 +6,7 @@ configs=(
   '03-sequencial-cache|true|false|false|false'
   '04-sequencial-sem-cache|false|false|false|false'
   '10-sequencial-expandido|true|true|false|false'
+  '11-sequencial-falha|true|false|false|true'
 )
 
 for entry in "${configs[@]}"; do

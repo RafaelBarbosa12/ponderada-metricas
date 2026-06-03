@@ -4,7 +4,7 @@ Coleta métricas reais do GitHub Actions via API e gera CSV/JSON.
 
 Uso:
   export GITHUB_TOKEN=ghp_...
-  python scripts/collect_metrics.py --repo RafaelBarbosa12/ponderada-hermano
+  python scripts/collect_metrics.py --repo RafaelBarbosa12/ponderada-metricas
 
 Requer permissões: actions:read, contents:read (para commits).
 """
@@ -346,7 +346,7 @@ def collect(repo: str, token: str, limit: int, out_dir: Path) -> Path:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Coleta métricas do GitHub Actions")
-    parser.add_argument("--repo", default=os.environ.get("GITHUB_REPOSITORY", "RafaelBarbosa12/ponderada-hermano"))
+    parser.add_argument("--repo", default=os.environ.get("GITHUB_REPOSITORY", "RafaelBarbosa12/ponderada-metricas"))
     parser.add_argument("--limit", type=int, default=30)
     parser.add_argument("--out", type=Path, default=Path("data/metrics"))
     parser.add_argument("--token", default=os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN"))
