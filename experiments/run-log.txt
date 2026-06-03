@@ -8,3 +8,4 @@
 09-sem-cache-expandido 2026-06-03T13:38:23Z
 12-baseline-repeticao 2026-06-03T13:38:30Z
 03-sequencial-cache
+04-sequencial-sem-cache
