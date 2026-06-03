@@ -9,7 +9,6 @@ configs=(
   '02-sem-cache|true|false|false|false|false'
   '05-testes-expandidos|true|true|true|false|false'
   '06-teste-lento|true|true|false|true|false'
-  '07-falha-intencional|true|true|false|false|true'
   '08-expandido-lento|true|true|true|true|false'
   '09-sem-cache-expandido|true|false|true|false|false'
   '12-baseline-repeticao|true|true|false|false|false'

@@ -34,12 +34,6 @@ on:
 
 env:
   PYTHON_VERSION: "3.11"
-  EXPERIMENT_VARIATION: ${{ github.event.inputs.experiment_variation || 'push-default' }}
-  PARALLEL_JOBS: ${{ github.event.inputs.parallel_jobs != false && 'true' || 'false' }}
-  CACHE_ENABLED: ${{ github.event.inputs.cache_enabled != false && 'true' || 'false' }}
-  EXPAND_TESTS: ${{ github.event.inputs.expand_tests == true && '1' || '0' }}
-  RUN_SLOW_TESTS: ${{ github.event.inputs.run_slow_tests == true && '1' || '0' }}
-  INTENTIONAL_FAIL: ${{ github.event.inputs.intentional_fail == true && '1' || '0' }}
 
 jobs:
   lint:
@@ -122,10 +116,6 @@ jobs:
 
       - name: Executar testes
         id: pytest
-        env:
-          EXPAND_TESTS: ${{ env.EXPAND_TESTS }}
-          RUN_SLOW_TESTS: ${{ env.RUN_SLOW_TESTS }}
-          INTENTIONAL_FAIL: ${{ env.INTENTIONAL_FAIL }}
         run: |
           START=$(date +%s)
           mkdir -p reports
@@ -168,8 +158,12 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      - name: Carregar experiment-config.json
+        run: python3 scripts/load_experiment_config.py
+
       - name: Baixar artefato de testes
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           pattern: test-results-*
           merge-multiple: true
@@ -196,12 +190,14 @@ jobs:
           echo "Workflow iniciado em: $WF_START"
 
       - name: Gravar métricas locais
+        if: always()
         env:
           JUNIT_PATH: reports/junit.xml
           METRICS_DIR: artifacts/metrics
           JOB_STATUS: ${{ needs.test.result }}
           JOB_CONCLUSION: ${{ needs.test.result }}
         run: python scripts/record_pipeline_metrics.py
+        continue-on-error: true
 
       - name: Anotar resultados dos jobs
         env:

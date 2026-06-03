@@ -1,8 +1,8 @@
 {
-  "experiment_variation": "11-sequencial-falha",
-  "parallel_jobs": false,
+  "experiment_variation": "baseline-estavel",
+  "parallel_jobs": true,
   "cache_enabled": true,
   "expand_tests": false,
   "run_slow_tests": false,
-  "intentional_fail": true
+  "intentional_fail": false
 }
