@@ -1,8 +1,8 @@
 {
-  "experiment_variation": "08-expandido-lento",
+  "experiment_variation": "09-sem-cache-expandido",
   "parallel_jobs": true,
-  "cache_enabled": true,
+  "cache_enabled": false,
   "expand_tests": true,
-  "run_slow_tests": true,
+  "run_slow_tests": false,
   "intentional_fail": false
 }
