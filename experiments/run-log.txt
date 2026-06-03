@@ -6,3 +6,4 @@
 07-falha-intencional 2026-06-03T13:38:10Z
 08-expandido-lento 2026-06-03T13:38:16Z
 09-sem-cache-expandido 2026-06-03T13:38:23Z
+12-baseline-repeticao 2026-06-03T13:38:30Z

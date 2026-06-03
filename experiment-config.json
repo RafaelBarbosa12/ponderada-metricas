@@ -1,8 +1,8 @@
 {
-  "experiment_variation": "09-sem-cache-expandido",
+  "experiment_variation": "12-baseline-repeticao",
   "parallel_jobs": true,
-  "cache_enabled": false,
-  "expand_tests": true,
+  "cache_enabled": true,
+  "expand_tests": false,
   "run_slow_tests": false,
   "intentional_fail": false
 }
