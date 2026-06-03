@@ -3,7 +3,7 @@
 Repositório da atividade de instrumentação e análise de pipeline GitHub Actions.
 
 **Repositório:** https://github.com/RafaelBarbosa12/ponderada-metricas  
-**Entregáveis (índice):** [entregaveis/ENTREGAVEIS.md](entregaveis/ENTREGAVEIS.md)  
+**Entregáveis (índice):** [entregaveis.md](entregaveis.md)  
 **Workflow:** [.github/workflows/ci.yml](.github/workflows/ci.yml)
 
 ## Estrutura
@@ -18,7 +18,7 @@ Repositório da atividade de instrumentação e análise de pipeline GitHub Acti
 | `data/metrics/` | CSV/JSON gerados pelo script de coleta |
 | `charts/` | PNG dos gráficos |
 | `docs/RELATORIO.md` | Relatório técnico da atividade |
-| `entregaveis/ENTREGAVEIS.md` | Índice com links e dados de entrega |
+| `entregaveis.md` | Índice com links e dados de entrega |
 
 ## Reproduzir o experimento
 

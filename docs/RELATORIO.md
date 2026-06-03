@@ -4,7 +4,7 @@
 **Repositório de entrega:** https://github.com/RafaelBarbosa12/ponderada-metricas  
 **Workflow YAML:** https://github.com/RafaelBarbosa12/ponderada-metricas/blob/main/.github/workflows/ci.yml  
 **Actions:** https://github.com/RafaelBarbosa12/ponderada-metricas/actions  
-**Índice de entregáveis:** [entregaveis/ENTREGAVEIS.md](../entregaveis/ENTREGAVEIS.md)
+**Índice de entregáveis:** [entregaveis.md](../entregaveis.md)
 
 > Dados: coleta via `scripts/collect_metrics.py` (API GitHub). Experimento com 12+ variações documentado no CSV; run principal do repo atual: **26889954640**.
 
@@ -192,4 +192,4 @@ O experimento atende aos requisitos: pipeline instrumentado, script Python na AP
 
 ## 10. Como reproduzir
 
-Ver [README.md](../README.md) e [entregaveis/ENTREGAVEIS.md](../entregaveis/ENTREGAVEIS.md).
+Ver [README.md](../README.md) e [entregaveis.md](../entregaveis.md).
