@@ -1,6 +1,6 @@
 {
-  "experiment_variation": "12-baseline-repeticao",
-  "parallel_jobs": true,
+  "experiment_variation": "03-sequencial-cache",
+  "parallel_jobs": false,
   "cache_enabled": true,
   "expand_tests": false,
   "run_slow_tests": false,
