@@ -46,6 +46,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Carregar experiment-config.json
+        run: python3 scripts/load_experiment_config.py
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -88,6 +91,9 @@ jobs:
     needs: ${{ github.event.inputs.parallel_jobs == false && fromJSON('["lint"]') || fromJSON('[]') }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Carregar experiment-config.json
+        run: python3 scripts/load_experiment_config.py
 
       - name: Setup Python
         uses: actions/setup-python@v5

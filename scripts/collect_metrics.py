@@ -26,7 +26,7 @@ from pathlib import Path
 import requests
 
 API = "https://api.github.com"
-WORKFLOW_NAME = "CI/CD Métricas"
+WORKFLOW_NAMES = ("CI/CD Métricas", "CI/CD Métricas (sequencial)")
 CSV_FIELDS = [
     "run_id",
     "run_number",
@@ -74,23 +74,30 @@ def duration_sec(start: str | None, end: str | None) -> float:
     return max(0.0, (e - s).total_seconds())
 
 
-def get_workflow_id(session: requests.Session, repo: str) -> int:
+def get_workflow_ids(session: requests.Session, repo: str) -> list[int]:
     r = session.get(f"{API}/repos/{repo}/actions/workflows", timeout=60)
     r.raise_for_status()
+    ids: list[int] = []
     for wf in r.json().get("workflows", []):
-        if wf.get("name") == WORKFLOW_NAME or wf.get("path", "").endswith("ci.yml"):
-            return wf["id"]
-    raise RuntimeError(f"Workflow '{WORKFLOW_NAME}' não encontrado em {repo}")
+        if wf.get("name") in WORKFLOW_NAMES or wf.get("path", "").endswith(("ci.yml", "ci-sequential.yml")):
+            ids.append(wf["id"])
+    if not ids:
+        raise RuntimeError(f"Workflows {WORKFLOW_NAMES} não encontrados em {repo}")
+    return ids
 
 
-def list_runs(session: requests.Session, repo: str, workflow_id: int, limit: int) -> list:
-    r = session.get(
-        f"{API}/repos/{repo}/actions/workflows/{workflow_id}/runs",
-        params={"per_page": min(limit, 100)},
-        timeout=60,
-    )
-    r.raise_for_status()
-    return r.json().get("workflow_runs", [])[:limit]
+def list_runs(session: requests.Session, repo: str, workflow_ids: list[int], limit: int) -> list:
+    all_runs: list = []
+    for workflow_id in workflow_ids:
+        r = session.get(
+            f"{API}/repos/{repo}/actions/workflows/{workflow_id}/runs",
+            params={"per_page": min(limit, 100)},
+            timeout=60,
+        )
+        r.raise_for_status()
+        all_runs.extend(r.json().get("workflow_runs", []))
+    all_runs.sort(key=lambda x: x.get("run_started_at") or "", reverse=True)
+    return all_runs[:limit]
 
 
 def get_jobs(session: requests.Session, repo: str, run_id: int) -> list:
@@ -196,8 +203,8 @@ def collect(repo: str, token: str, limit: int, out_dir: Path) -> Path:
     session = requests.Session()
     session.headers.update(headers(token))
 
-    workflow_id = get_workflow_id(session, repo)
-    runs = list_runs(session, repo, workflow_id, limit)
+    workflow_ids = get_workflow_ids(session, repo)
+    runs = list_runs(session, repo, workflow_ids, limit)
     rows: list[dict] = []
 
     for run in runs:

@@ -1,0 +1,111 @@
+# Variante sequencial: test só após lint (comparação de paralelismo)
+name: CI/CD Métricas (sequencial)
+
+on:
+  workflow_dispatch:
+    inputs:
+      experiment_variation:
+        description: "Rótulo da variação"
+        required: true
+        default: "sequential-dispatch"
+      cache_enabled:
+        type: boolean
+        default: true
+      expand_tests:
+        type: boolean
+        default: false
+      run_slow_tests:
+        type: boolean
+        default: false
+      intentional_fail:
+        type: boolean
+        default: false
+
+env:
+  PYTHON_VERSION: "3.11"
+  EXPERIMENT_VARIATION: ${{ github.event.inputs.experiment_variation }}
+  PARALLEL_JOBS: "false"
+  CACHE_ENABLED: ${{ github.event.inputs.cache_enabled != false && 'true' || 'false' }}
+  EXPAND_TESTS: ${{ github.event.inputs.expand_tests == true && '1' || '0' }}
+  RUN_SLOW_TESTS: ${{ github.event.inputs.run_slow_tests == true && '1' || '0' }}
+  INTENTIONAL_FAIL: ${{ github.event.inputs.intentional_fail == true && '1' || '0' }}
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Cache pip
+        if: env.CACHE_ENABLED == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-seq-${{ hashFiles('requirements-dev.txt') }}
+      - name: Instalar e lint
+        run: |
+          pip install -r requirements-dev.txt -q
+          ruff check src tests
+
+  test:
+    name: test
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Cache pip
+        if: env.CACHE_ENABLED == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-seq-${{ hashFiles('requirements-dev.txt') }}
+      - name: Testes
+        env:
+          EXPAND_TESTS: ${{ env.EXPAND_TESTS }}
+          RUN_SLOW_TESTS: ${{ env.RUN_SLOW_TESTS }}
+          INTENTIONAL_FAIL: ${{ env.INTENTIONAL_FAIL }}
+        run: |
+          pip install -r requirements-dev.txt -q
+          mkdir -p reports
+          pytest --junitxml=reports/junit.xml --timeout=30
+        continue-on-error: ${{ env.INTENTIONAL_FAIL == '1' }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ github.run_id }}
+          path: reports/
+      - run: echo "COMMIT_MESSAGE=$(git log -1 --pretty=%s)" >> "$GITHUB_ENV"
+        if: always()
+
+  collect-metrics:
+    name: collect-metrics
+    needs: [lint, test]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: test-results-*
+          merge-multiple: true
+          path: reports
+      - run: echo "COMMIT_MESSAGE=$(git log -1 --pretty=%s)" >> "$GITHUB_ENV"
+      - run: pip install -r requirements-dev.txt -q
+      - run: python scripts/record_pipeline_metrics.py
+        env:
+          JUNIT_PATH: reports/junit.xml
+          METRICS_DIR: artifacts/metrics
+          JOB_STATUS: ${{ needs.test.result }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-metrics-${{ github.run_id }}
+          path: artifacts/metrics/
