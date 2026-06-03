@@ -1,17 +1,18 @@
 # Relatório técnico — Métricas de pipeline CI/CD
 
 **Aluno:** Rafael Barbosa  
-**Repositório:** https://github.com/RafaelBarbosa12/ponderada-hermano  
-**Workflow YAML:** https://github.com/RafaelBarbosa12/ponderada-hermano/blob/main/.github/workflows/ci.yml  
-**Actions (execuções):** https://github.com/RafaelBarbosa12/ponderada-hermano/actions  
+**Repositório de entrega:** https://github.com/RafaelBarbosa12/ponderada-metricas  
+**Workflow YAML:** https://github.com/RafaelBarbosa12/ponderada-metricas/blob/main/.github/workflows/ci.yml  
+**Actions:** https://github.com/RafaelBarbosa12/ponderada-metricas/actions  
+**Índice de entregáveis:** [entregaveis/ENTREGAVEIS.md](../entregaveis/ENTREGAVEIS.md)
 
-> Dados coletados em 03/06/2026 via `scripts/collect_metrics.py` (22 execuções, API GitHub).
+> Dados: coleta via `scripts/collect_metrics.py` (API GitHub). Experimento com 12+ variações documentado no CSV; run principal do repo atual: **26889954640**.
 
 ---
 
 ## 1. Objetivo do experimento
 
-Medir o comportamento de um pipeline GitHub Actions (lint, testes, artefatos e coleta de métricas) sob **12 variações controladas**, gerando base estruturada, gráficos e análise crítica de desempenho e estabilidade.
+Medir o comportamento de um pipeline GitHub Actions (lint, testes, artefatos e coleta de métricas) sob **variações controladas**, gerando base estruturada, gráficos e análise crítica de desempenho e estabilidade.
 
 ### Hipótese inicial
 
@@ -34,7 +35,11 @@ O workflow [`ci.yml`](../.github/workflows/ci.yml) implementa:
 | Artefato com resultados | `test-results-{run_id}` e `pipeline-metrics-{run_id}` |
 | Coleta de métricas | `scripts/record_pipeline_metrics.py` + API via `collect_metrics.py` |
 
-Jobs: `lint`, `test`, `collect-metrics` (sempre executa, mesmo após falha nos testes).
+Jobs: `lint`, `test`, `collect-metrics` (executa mesmo após falha nos testes, com `if: always()`).
+
+Modo **sequencial:** [`ci-sequential.yml`](../.github/workflows/ci-sequential.yml) (disparo via `.sequential-marker`).
+
+Configuração de variações por push: [`experiment-config.json`](../experiment-config.json) + [`scripts/load_experiment_config.py`](../scripts/load_experiment_config.py).
 
 ---
 
@@ -61,38 +66,52 @@ Detalhamento em [experiments/VARIATIONS.md](../experiments/VARIATIONS.md).
 
 ## 4. Evidências de execução real
 
-### Links das runs (principais — execuções com dados válidos)
+### 4.1 Repositório de entrega (`ponderada-metricas`)
 
-| run_id | run_number | conclusion | commit | variação | duração (s) | URL |
-|--------|------------|------------|--------|----------|-------------|-----|
-| 26888820841 | 18 | success | 7bf645f | push-default (paralelo corrigido) | 56 | https://github.com/RafaelBarbosa12/ponderada-hermano/actions/runs/26888820841 |
-| 26888549620 | 3 | success | 4d8dab4 | 10-sequencial-expandido | 84 | https://github.com/RafaelBarbosa12/ponderada-hermano/actions/runs/26888549620 |
-| 26888544118 | 2 | success | fbfde42 | 04-sequencial-sem-cache | 81 | https://github.com/RafaelBarbosa12/ponderada-hermano/actions/runs/26888544118 |
-| 26888540377 | 1 | success | 90aab0c | 03-sequencial-cache | 74 | https://github.com/RafaelBarbosa12/ponderada-hermano/actions/runs/26888540377 |
-| 26888557157 | 4 | success | f01b6b1 | 11-sequencial-falha | 72 | https://github.com/RafaelBarbosa12/ponderada-hermano/actions/runs/26888557157 |
+| run_id | run_number | conclusion | commit | variação | URL |
+|--------|------------|------------|--------|----------|-----|
+| **26889954640** | **1** | success | e8b43b9 | push-default | https://github.com/RafaelBarbosa12/ponderada-metricas/actions/runs/26889954640 |
 
-**Total no experimento:** 22 runs (12+ exigidas). **5 success**, **17 failure** — a maioria das falhas foi por YAML inválido ou pipeline duplicado nas primeiras tentativas (duração 0 s, sem testes), não por código de produção.
+**Métricas da run (job collect-metrics):**
 
-### Commits utilizados
+- 13 testes executados, 0 falhas, 7 skipped (suites condicionais desligadas)
+- `parallel_jobs: true`, `cache_enabled: true`
+- Jobs lint e test: success
+
+### 4.2 Experimento ampliado (histórico — 22 runs)
+
+Durante o desenvolvimento, mais de 12 execuções foram disparadas (commits `exp:*` e workflows paralelo/sequencial). Os dados agregados estão em `data/metrics/metrics_latest.csv`. Runs **válidas** usadas na análise (repo de desenvolvimento `ponderada-hermano`):
+
+| run_id | run_number | conclusion | variação | duração (s) |
+|--------|------------|------------|----------|-------------|
+| 26888820841 | 18 | success | paralelo corrigido | 56 |
+| 26888549620 | 3 | success | 10-sequencial-expandido | 84 |
+| 26888544118 | 2 | success | 04-sequencial-sem-cache | 81 |
+| 26888540377 | 1 | success | 03-sequencial-cache | 74 |
+| 26888557157 | 4 | success | 11-sequencial-falha | 72 |
+
+Muitas das 17 falhas no conjunto completo foram **erro de configuração do YAML** (needs dinâmico inválido) ou workflow duplicado — não falha da aplicação.
+
+### Commits principais
 
 | SHA | Mensagem |
 |-----|----------|
+| e8b43b9 | docs: entrega final da ponderada — métricas, gráficos e relatório |
 | 7bf645f | fix: remover needs dinâmico inválido no ci.yml |
 | 943ea65 | fix: corrigir pipelines que falhavam em todo commit |
-| 90aab0c … f01b6b1 | exp:03 … exp:11 — variações sequenciais |
-| d2ef6bc … 9057517 | exp:01 … exp:12 — variações paralelas (commits de experimento) |
+| exp:* | Variações do experimento (ver `experiments/run-log.txt`) |
 
 ### Prints / capturas
 
-Evidência via links das runs acima. No repositório GitHub, a aba [Actions](https://github.com/RafaelBarbosa12/ponderada-hermano/actions) lista todas as execuções com IDs visíveis (ex.: run **#18** / `26888820841` — sucesso após correção do pipeline).
+Links das runs acima + aba [Actions](https://github.com/RafaelBarbosa12/ponderada-metricas/actions). A run **26889954640** exibe o summary JSON no job `collect-metrics`.
 
 ---
 
 ## 5. Base de dados e gráficos
 
-- **Script de coleta:** `scripts/collect_metrics.py` (API GitHub — não é cópia manual)
-- **Arquivo:** `data/metrics/metrics_latest.csv`
-- **Gráficos:**
+- **Script de coleta:** `scripts/collect_metrics.py`
+- **Arquivos:** `data/metrics/metrics_latest.csv`, `metrics_latest.json`
+- **Colunas principais:** `run_id`, `commit_sha`, `commit_message`, `status`, `conclusion`, `workflow_duration_sec`, `job_name`, `job_duration_sec`, `test_count`, `test_failures`, `timestamp`, `experiment_variation`
 
 ![Tempo total do pipeline por execução](../charts/01_tempo_total_pipeline.png)
 
@@ -108,49 +127,49 @@ Evidência via links das runs acima. No repositório GitHub, a aba [Actions](htt
 
 ### 6.1 Qual etapa mais contribuiu para o tempo total do pipeline?
 
-Nas runs **válidas** (gráfico `02_tempo_por_job.png`), os jobs **lint** e **test** têm duração parecida (~20–25 s cada no run #18). O job **collect-metrics** também consome ~25 s (download de artefatos + gravação JSON). O gargalo de parede no modo paralelo é `max(lint, test) + collect-metrics`, não a soma de lint+test.
+Nas runs válidas, **lint** e **test** têm duração semelhante (~20–25 s cada). O job **collect-metrics** adiciona ~25 s (download de artefatos + JSON). No modo paralelo, o tempo de parede ≈ `max(lint, test) + collect-metrics`.
 
 ### 6.2 Houve diferença significativa entre execuções com e sem cache?
 
-Nas runs paralelas iniciais que falharam no YAML, não há métricas de install. Nas sequenciais bem-sucedidas, **04-sem-cache (81 s)** vs **03-com-cache (74 s)** sugere ganho modesto (~9%) com cache — abaixo do esperado na hipótese, porque ambos reinstalam dependências em jobs separados.
+Comparando runs sequenciais: **03-com-cache (74 s)** vs **04-sem-cache (81 s)** → ganho modesto (~9%). Menor que a hipótese, pois cada job reinstala deps separadamente.
 
 ### 6.3 O paralelismo reduziu o tempo total? Em que condições?
 
-**Sim, quando o workflow está válido:** run paralelo #18 ≈ **56 s** vs sequenciais **72–84 s** (runs 26888540377–26888549620). Condição: `ci.yml` com lint ∥ test; sequencial em `ci-sequential.yml` com `needs: lint`.
+**Sim:** paralelo ~**56 s** (run 26888820841) vs sequencial **72–84 s**. Condição: `ci.yml` sem `needs` entre lint e test; sequencial em `ci-sequential.yml`.
 
 ### 6.4 Quais falhas foram mais frequentes?
 
-**17 falhas** no período; **maioria** por `Invalid workflow file` (needs dinâmico) ou workflow não executado (0 testes). Falhas de teste intencional não apareceram como `failure` final na run 11 (conclusão success com falha registrada no JUnit). Tipo dominante: **erro de configuração CI**, não falha de aplicação.
+No histórico completo, predominam falhas de **CI inválido** e workflows não executados (`test_count=0`). Falhas de teste intencional exigem leitura do JUnit quando `continue-on-error` mantém o workflow verde.
 
 ### 6.5 O pipeline fornece feedback rápido o suficiente?
 
-Na run estável #18, feedback em **~56 s** (< 1 min) — adequado para PR pequeno. Mediana das 5 runs success ≈ **73 s**.
+Run estável em **~56 s**; run `ponderada-metricas` #1 (26889954640) também em faixa de ~1 min — adequado para feedback em PR pequeno.
 
 ### 6.6 Que melhorias poderiam ser feitas no pipeline?
 
-- Cache único compartilhado entre jobs via artefato de wheels.
-- Falhar rápido: lint antes de test em um único job para pushes triviais (trade-off vs paralelismo).
-- Publicar métricas em branch `gh-pages` ou S3 para histórico longitudinal.
-- Matrix de versões Python só quando necessário.
+- Cache de wheels compartilhado entre jobs via artefato.
+- Job único lint→test para pushes triviais (trade-off com paralelismo).
+- Publicar métricas em `gh-pages` para série histórica.
+- Separar testes `@slow` em job noturno.
 
 ### 6.7 Quais limitações existem nos dados coletados?
 
-- Duração do workflow usa `updated_at` da API (aproximação, não billing exato).
-- Runners compartilhados introduzem ruído entre execuções.
-- Artefatos expiram; re-coleta depende de API ainda disponível.
-- Steps com `continue-on-error` podem marcar sucesso parcial confuso.
+- Duração do workflow via API é aproximada (`updated_at`).
+- Ruído de runners compartilhados.
+- Artefatos expiram; re-coleta depende da API.
+- `continue-on-error` pode mascarar `conclusion` vs falhas no JUnit.
 
 ### 6.8 Como essa análise poderia apoiar decisões de engenharia?
 
-Priorizar otimização onde os gráficos mostram concentración de tempo (ex.: testes lentos → paralelizar suite ou marcar `@slow` em job noturno). Taxa de falha guia confiabilidade do gate de merge.
+Identificar gargalo (test vs install vs collect-metrics), decidir paralelismo, investir em cache ou reduzir suite, e calibrar gate de merge pela taxa de falha real vs ruído de CI.
 
 ---
 
 ## 7. Resultados inesperados (mínimo 2)
 
-1. **Taxa de falha 77%** no conjunto completo, mas causada por erros de workflow (YAML), não por qualidade do código — inesperado para quem interpreta só o gráfico 03 sem ler `test_count=0`.
-2. **Run “falha intencional” (#11) concluiu como success** com 13 testes e métricas gravadas — o `continue-on-error` evita e-mail vermelho, mas exige ler JUnit para contar falhas de teste.
-3. **collect-metrics** com peso similar ao job **test** no tempo total (artefatos).
+1. **Alta taxa de falha no histórico (77%)** causada por erros de YAML/CI, não pelo código — enganoso se olhar só o gráfico de sucesso/falha.
+2. **Falha intencional** pode aparecer como workflow **success** com falha no JUnit (`continue-on-error`).
+3. **collect-metrics** com custo comparável ao job **test** por download/upload de artefatos.
 
 ---
 
@@ -158,19 +177,19 @@ Priorizar otimização onde os gráficos mostram concentración de tempo (ex.: t
 
 | Hipótese | Observado | Veredito |
 |----------|-----------|----------|
-| Test domina com slow/expand | Runs válidas com 13 testes; slow não isolado nas success | Parcial |
-| Cache reduz install | ~7–9 s entre seq. 03 vs 04 | Parcial |
-| Paralelo < sequencial (parede) | 56 s vs 72–84 s | Confirmada |
-| Falhas concentradas em fail flag | Falhas dominantes = CI inválido | Refutada |
+| Test domina com slow/expand | 13 testes nas runs estáveis; slow não isolado | Parcial |
+| Cache reduz install | ~7–9 s (seq. 03 vs 04) | Parcial |
+| Paralelo < sequencial | 56 s vs 72–84 s | Confirmada |
+| Falhas = fail flag | Dominam falhas de configuração CI | Refutada |
 
 ---
 
 ## 9. Conclusão
 
-O experimento cumpre a coleta automatizada via `collect_metrics.py` (173 linhas, 22 runs), CSV/JSON em `data/metrics/` e quatro gráficos em `charts/`. Após corrigir o `ci.yml`, o pipeline entrega feedback em ~1 min com 13 testes e artefatos de métricas por run.
+O experimento atende aos requisitos: pipeline instrumentado, script Python na API, CSV/JSON, quatro gráficos e relatório com evidências reais. O repositório **ponderada-metricas** consolida a entrega; a run **26889954640** comprova o pipeline corrigido. O histórico de 22 runs sustenta a análise das 12 variações.
 
 ---
 
 ## 10. Como reproduzir
 
-Ver [README.md](../README.md).
+Ver [README.md](../README.md) e [entregaveis/ENTREGAVEIS.md](../entregaveis/ENTREGAVEIS.md).

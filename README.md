@@ -2,7 +2,8 @@
 
 Repositório da atividade de instrumentação e análise de pipeline GitHub Actions.
 
-**Repositório:** https://github.com/RafaelBarbosa12/ponderada-hermano  
+**Repositório:** https://github.com/RafaelBarbosa12/ponderada-metricas  
+**Entregáveis (índice):** [entregaveis/ENTREGAVEIS.md](entregaveis/ENTREGAVEIS.md)  
 **Workflow:** [.github/workflows/ci.yml](.github/workflows/ci.yml)
 
 ## Estrutura
@@ -17,6 +18,7 @@ Repositório da atividade de instrumentação e análise de pipeline GitHub Acti
 | `data/metrics/` | CSV/JSON gerados pelo script de coleta |
 | `charts/` | PNG dos gráficos |
 | `docs/RELATORIO.md` | Relatório técnico da atividade |
+| `entregaveis/ENTREGAVEIS.md` | Índice com links e dados de entrega |
 
 ## Reproduzir o experimento
 
@@ -38,10 +40,10 @@ git push -u origin main
 
 ```bash
 chmod +x scripts/trigger_experiments.sh
-./scripts/trigger_experiments.sh RafaelBarbosa12/ponderada-hermano
+./scripts/trigger_experiments.sh RafaelBarbosa12/ponderada-metricas
 ```
 
-Aguarde todas as runs em: https://github.com/RafaelBarbosa12/ponderada-hermano/actions
+Aguarde todas as runs em: https://github.com/RafaelBarbosa12/ponderada-metricas/actions
 
 ### 4. Coletar métricas e gerar gráficos
 
@@ -50,7 +52,7 @@ python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
 
 export GITHUB_TOKEN=$(gh auth token)
-python scripts/collect_metrics.py --repo RafaelBarbosa12/ponderada-hermano --limit 30
+python scripts/collect_metrics.py --repo RafaelBarbosa12/ponderada-metricas --limit 30
 python scripts/generate_charts.py
 ```
 
