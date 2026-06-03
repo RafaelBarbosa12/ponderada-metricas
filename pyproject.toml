@@ -1,5 +1,5 @@
 [project]
-name = "ponderada-hermano"
+name = "ponderada-metricas"
 version = "0.1.0"
 description = "Experimento CI/CD — métricas de pipeline"
 requires-python = ">=3.11"
