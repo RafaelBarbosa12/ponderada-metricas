@@ -22,3 +22,4 @@
 03-sequencial-cache
 04-sequencial-sem-cache
 10-sequencial-expandido
+11-sequencial-falha
