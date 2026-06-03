@@ -1,7 +1,7 @@
 {
-  "experiment_variation": "01-baseline-paralelo-cache",
+  "experiment_variation": "02-sem-cache",
   "parallel_jobs": true,
-  "cache_enabled": true,
+  "cache_enabled": false,
   "expand_tests": false,
   "run_slow_tests": false,
   "intentional_fail": false
