@@ -2,7 +2,8 @@
 
 **Aluno:** Rafael Barbosa  
 **Repositório de entrega:** https://github.com/RafaelBarbosa12/ponderada-metricas  
-**Data de referência:** 03/06/2026  
+
+*Uso de IA para ajudar na documentacao e organizacao de pastas e textos*
 
 ---
 
@@ -154,22 +155,8 @@ python scripts/generate_charts.py
 
 ---
 
-## 7. Relatório — perguntas do professor
+## 7. Relatório
 
 Respostas detalhadas: **[docs/RELATORIO.md](docs/RELATORIO.md)**
 
 ---
-
-## 8. Texto sugerido para envio (Moodle / e-mail)
-
-> Segue a ponderada de métricas de pipeline CI/CD.  
-> Repositório: https://github.com/RafaelBarbosa12/ponderada-metricas  
-> Entregáveis: https://github.com/RafaelBarbosa12/ponderada-metricas/blob/main/entregaveis.md  
-> Relatório: https://github.com/RafaelBarbosa12/ponderada-metricas/blob/main/docs/RELATORIO.md  
-> Actions (evidência): https://github.com/RafaelBarbosa12/ponderada-metricas/actions/runs/26889954640  
-
----
-
-## 9. Repositório anterior (referência)
-
-https://github.com/RafaelBarbosa12/ponderada-hermano — substituído por `ponderada-metricas` na entrega final.
