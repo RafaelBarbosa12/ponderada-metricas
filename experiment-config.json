@@ -1,7 +1,7 @@
 {
-  "experiment_variation": "03-sequencial-cache",
+  "experiment_variation": "04-sequencial-sem-cache",
   "parallel_jobs": false,
-  "cache_enabled": true,
+  "cache_enabled": false,
   "expand_tests": false,
   "run_slow_tests": false,
   "intentional_fail": false
