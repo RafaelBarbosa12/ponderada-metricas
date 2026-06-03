@@ -2,3 +2,4 @@
 01-baseline-paralelo-cache 2026-06-03T13:37:42Z
 02-sem-cache 2026-06-03T13:37:49Z
 05-testes-expandidos 2026-06-03T13:37:55Z
+06-teste-lento 2026-06-03T13:38:03Z
