@@ -5,7 +5,7 @@
 **Workflow YAML:** https://github.com/RafaelBarbosa12/ponderada-hermano/blob/main/.github/workflows/ci.yml  
 **Actions (execuções):** https://github.com/RafaelBarbosa12/ponderada-hermano/actions  
 
-> Após rodar `collect_metrics.py`, substitua as seções marcadas com `[PREENCHER]` pelos valores do seu `data/metrics/metrics_latest.csv`.
+> Dados coletados em 03/06/2026 via `scripts/collect_metrics.py` (22 execuções, API GitHub).
 
 ---
 
@@ -61,21 +61,30 @@ Detalhamento em [experiments/VARIATIONS.md](../experiments/VARIATIONS.md).
 
 ## 4. Evidências de execução real
 
-### Links das runs
+### Links das runs (principais — execuções com dados válidos)
 
-[PREENCHER: colar tabela gerada após coleta — exemplo]
+| run_id | run_number | conclusion | commit | variação | duração (s) | URL |
+|--------|------------|------------|--------|----------|-------------|-----|
+| 26888820841 | 18 | success | 7bf645f | push-default (paralelo corrigido) | 56 | https://github.com/RafaelBarbosa12/ponderada-hermano/actions/runs/26888820841 |
+| 26888549620 | 3 | success | 4d8dab4 | 10-sequencial-expandido | 84 | https://github.com/RafaelBarbosa12/ponderada-hermano/actions/runs/26888549620 |
+| 26888544118 | 2 | success | fbfde42 | 04-sequencial-sem-cache | 81 | https://github.com/RafaelBarbosa12/ponderada-hermano/actions/runs/26888544118 |
+| 26888540377 | 1 | success | 90aab0c | 03-sequencial-cache | 74 | https://github.com/RafaelBarbosa12/ponderada-hermano/actions/runs/26888540377 |
+| 26888557157 | 4 | success | f01b6b1 | 11-sequencial-falha | 72 | https://github.com/RafaelBarbosa12/ponderada-hermano/actions/runs/26888557157 |
 
-| run_id | run_number | conclusion | commit (curto) | variação | URL |
-|--------|------------|------------|----------------|----------|-----|
-| … | … | … | … | … | https://github.com/RafaelBarbosa12/ponderada-hermano/actions/runs/… |
+**Total no experimento:** 22 runs (12+ exigidas). **5 success**, **17 failure** — a maioria das falhas foi por YAML inválido ou pipeline duplicado nas primeiras tentativas (duração 0 s, sem testes), não por código de produção.
 
 ### Commits utilizados
 
-[PREENCHER: `commit_sha` e `commit_message` do CSV]
+| SHA | Mensagem |
+|-----|----------|
+| 7bf645f | fix: remover needs dinâmico inválido no ci.yml |
+| 943ea65 | fix: corrigir pipelines que falhavam em todo commit |
+| 90aab0c … f01b6b1 | exp:03 … exp:11 — variações sequenciais |
+| d2ef6bc … 9057517 | exp:01 … exp:12 — variações paralelas (commits de experimento) |
 
 ### Prints / capturas
 
-Incluir screenshots da aba Actions com pelo menos 3 runs visíveis (IDs legíveis), ou os links acima (aceitos como evidência pelo professor quando IDs são reais).
+Evidência via links das runs acima. No repositório GitHub, a aba [Actions](https://github.com/RafaelBarbosa12/ponderada-hermano/actions) lista todas as execuções com IDs visíveis (ex.: run **#18** / `26888820841` — sucesso após correção do pipeline).
 
 ---
 
@@ -84,10 +93,14 @@ Incluir screenshots da aba Actions com pelo menos 3 runs visíveis (IDs legívei
 - **Script de coleta:** `scripts/collect_metrics.py` (API GitHub — não é cópia manual)
 - **Arquivo:** `data/metrics/metrics_latest.csv`
 - **Gráficos:**
-  - `charts/01_tempo_total_pipeline.png`
-  - `charts/02_tempo_por_job.png`
-  - `charts/03_taxa_sucesso_falha.png`
-  - `charts/04_testes_vs_duracao.png`
+
+![Tempo total do pipeline por execução](../charts/01_tempo_total_pipeline.png)
+
+![Tempo por job em cada execução](../charts/02_tempo_por_job.png)
+
+![Taxa de sucesso e falha](../charts/03_taxa_sucesso_falha.png)
+
+![Quantidade de testes vs duração do pipeline](../charts/04_testes_vs_duracao.png)
 
 ---
 
@@ -95,25 +108,23 @@ Incluir screenshots da aba Actions com pelo menos 3 runs visíveis (IDs legívei
 
 ### 6.1 Qual etapa mais contribuiu para o tempo total do pipeline?
 
-[PREENCHER com base no gráfico 02 e colunas `step_duration_sec` / `job_duration_sec`.]
-
-Em geral, espera-se que **Executar testes** e, na variação 06/08, o marcador `slow` dominem; **Instalar dependências** ganha peso quando `cache_enabled=false`.
+Nas runs **válidas** (gráfico `02_tempo_por_job.png`), os jobs **lint** e **test** têm duração parecida (~20–25 s cada no run #18). O job **collect-metrics** também consome ~25 s (download de artefatos + gravação JSON). O gargalo de parede no modo paralelo é `max(lint, test) + collect-metrics`, não a soma de lint+test.
 
 ### 6.2 Houve diferença significativa entre execuções com e sem cache?
 
-Comparar runs 01 vs 02 e 05 vs 09. [PREENCHER valores médios de duração das steps de install.]
+Nas runs paralelas iniciais que falharam no YAML, não há métricas de install. Nas sequenciais bem-sucedidas, **04-sem-cache (81 s)** vs **03-com-cache (74 s)** sugere ganho modesto (~9%) com cache — abaixo do esperado na hipótese, porque ambos reinstalam dependências em jobs separados.
 
 ### 6.3 O paralelismo reduziu o tempo total? Em que condições?
 
-Comparar 01 vs 03 e 05 vs 10. O tempo de parede do workflow deve cair quando lint e test sobrepõem, exceto se o runner estiver ocioso em sequencial por espera explícita (`needs: lint`).
+**Sim, quando o workflow está válido:** run paralelo #18 ≈ **56 s** vs sequenciais **72–84 s** (runs 26888540377–26888549620). Condição: `ci.yml` com lint ∥ test; sequencial em `ci-sequential.yml` com `needs: lint`.
 
 ### 6.4 Quais falhas foram mais frequentes?
 
-Runs 07 e 11 (`intentional_fail`) devem aparecer como `failure` por assert no pytest. [PREENCHER contagem do gráfico 03.]
+**17 falhas** no período; **maioria** por `Invalid workflow file` (needs dinâmico) ou workflow não executado (0 testes). Falhas de teste intencional não apareceram como `failure` final na run 11 (conclusão success com falha registrada no JUnit). Tipo dominante: **erro de configuração CI**, não falha de aplicação.
 
 ### 6.5 O pipeline fornece feedback rápido o suficiente?
 
-Considerar mediana do `workflow_duration_sec` nas runs baseline (< 2–3 min é aceitável em runner gratuito). [PREENCHER mediana.]
+Na run estável #18, feedback em **~56 s** (< 1 min) — adequado para PR pequeno. Mediana das 5 runs success ≈ **73 s**.
 
 ### 6.6 Que melhorias poderiam ser feitas no pipeline?
 
@@ -137,8 +148,9 @@ Priorizar otimização onde os gráficos mostram concentración de tempo (ex.: t
 
 ## 7. Resultados inesperados (mínimo 2)
 
-1. **[PREENCHER]** Ex.: run baseline mais lenta que run sem cache por ruído do runner.
-2. **[PREENCHER]** Ex.: job `collect-metrics` com duração comparável ao `test` por download de artefatos.
+1. **Taxa de falha 77%** no conjunto completo, mas causada por erros de workflow (YAML), não por qualidade do código — inesperado para quem interpreta só o gráfico 03 sem ler `test_count=0`.
+2. **Run “falha intencional” (#11) concluiu como success** com 13 testes e métricas gravadas — o `continue-on-error` evita e-mail vermelho, mas exige ler JUnit para contar falhas de teste.
+3. **collect-metrics** com peso similar ao job **test** no tempo total (artefatos).
 
 ---
 
@@ -146,16 +158,16 @@ Priorizar otimização onde os gráficos mostram concentración de tempo (ex.: t
 
 | Hipótese | Observado | Veredito |
 |----------|-----------|----------|
-| Test domina com slow/expand | [PREENCHER] | [confirmada/parcial/refutada] |
-| Cache reduz install | [PREENCHER] | … |
-| Paralelo < sequencial (parede) | [PREENCHER] | … |
-| Falhas concentradas em fail flag | [PREENCHER] | … |
+| Test domina com slow/expand | Runs válidas com 13 testes; slow não isolado nas success | Parcial |
+| Cache reduz install | ~7–9 s entre seq. 03 vs 04 | Parcial |
+| Paralelo < sequencial (parede) | 56 s vs 72–84 s | Confirmada |
+| Falhas concentradas em fail flag | Falhas dominantes = CI inválido | Refutada |
 
 ---
 
 ## 9. Conclusão
 
-O experimento cumpre a coleta automatizada via script Python, gera CSV/JSON e quatro gráficos a partir de execuções reais no GitHub Actions. [PREENCHER síntese numérica após coleta.]
+O experimento cumpre a coleta automatizada via `collect_metrics.py` (173 linhas, 22 runs), CSV/JSON em `data/metrics/` e quatro gráficos em `charts/`. Após corrigir o `ci.yml`, o pipeline entrega feedback em ~1 min com 13 testes e artefatos de métricas por run.
 
 ---
 
