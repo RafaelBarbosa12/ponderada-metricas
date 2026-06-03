@@ -1,8 +1,8 @@
 {
-  "experiment_variation": "06-teste-lento",
+  "experiment_variation": "07-falha-intencional",
   "parallel_jobs": true,
   "cache_enabled": true,
   "expand_tests": false,
-  "run_slow_tests": true,
-  "intentional_fail": false
+  "run_slow_tests": false,
+  "intentional_fail": true
 }
