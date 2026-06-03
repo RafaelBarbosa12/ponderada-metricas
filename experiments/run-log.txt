@@ -3,3 +3,4 @@
 02-sem-cache 2026-06-03T13:37:49Z
 05-testes-expandidos 2026-06-03T13:37:55Z
 06-teste-lento 2026-06-03T13:38:03Z
+07-falha-intencional 2026-06-03T13:38:10Z
